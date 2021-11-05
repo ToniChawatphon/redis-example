@@ -20,8 +20,8 @@ func SetGetExample(r app.Redis) {
 	key1, value1 = "1", "golang-redis"
 
 	log.Println("===== Example 1 =====")
-	r.Set(key1, value1)
 	log.Printf("SET '%v: %v'", key1, value1)
+	r.Set(key1, value1)
 	res := r.Get(key1)
 	log.Printf("GET value '%v'", res)
 }

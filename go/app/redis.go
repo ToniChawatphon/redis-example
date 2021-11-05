@@ -20,8 +20,8 @@ type Redis struct {
 func (r *Redis) Connect() {
 	r.rdb = redis.NewClient(&redis.Options{
 		Addr:     r.RedisUrl,
-		Password: r.Password, // no password set
-		DB:       r.DB,       // use default DB
+		Password: r.Password,
+		DB:       r.DB,
 	})
 }
 
