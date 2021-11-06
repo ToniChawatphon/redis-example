@@ -34,7 +34,7 @@ func SetGetJsonExample(r app.Redis) {
 	log.Printf("GET json value %v", res)
 }
 
-// GetAllKeysExample
+// GetKeysExample
 func GetKeysExample(r app.Redis) {
 	log.Println("===== Example 3: Get KEYS =====")
 	key1 := "1"
@@ -63,7 +63,7 @@ func HsetSGetExample(r app.Redis) {
 	log.Printf("HGet field: '%v', value: '%v'", field2, res2)
 }
 
-// StructToJsonExample using hset and hget
+// HSetHGetJsonExample using hset and hget
 func HSetHGetJsonExample(r app.Redis) {
 	// variables
 	key := "x01x11x1"
@@ -81,7 +81,7 @@ func HSetHGetJsonExample(r app.Redis) {
 }
 
 // HGetAllExample get all field & value from key
-func HGetExample(r app.Redis) {
+func HGetAllExample(r app.Redis) {
 	log.Println("===== Example 6: HGet all =====")
 	key := "x01x11x1"
 	log.Printf("Get all field & value from key: '%v'", key)
@@ -136,7 +136,7 @@ func main() {
 	// hset hget
 	HsetSGetExample(r)
 	HSetHGetJsonExample(r)
-	HGetExample(r)
+	HGetAllExample(r)
 
 	// list & set
 	AppendItemIntoListExample(r)
