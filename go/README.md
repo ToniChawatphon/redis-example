@@ -1,5 +1,7 @@
 # redis-example
-This repository demonstrates an example of redis implementation in Python and Go. If you don't have redis let's download here https://redis.io/download  
+This repository demonstrates the example of how to store value, json, list, and set in redis using Go.
+
+If you don't have redis let's download here https://redis.io/download  
 
 
 ## Start Redis
