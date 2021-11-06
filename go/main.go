@@ -1,28 +1,42 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 
 	"github.com/ToniChawatphon/redis-example/app"
 	uuid "github.com/satori/go.uuid"
 )
 
+type Model struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
 // SetGetExample
 func SetGetExample(r app.Redis) {
+	log.Println("===== Example 1: SET GET =====")
 	var key, value string
 	key, value = "1", "golang-redis"
-
-	log.Println("===== Example 1: Set value =====")
-	log.Printf("SET '%v: %v'", key, value)
 	r.Set(key, value)
 	res := r.Get(key)
 	log.Printf("GET value '%v'", res)
 }
 
+func SetGetJsonExample(r app.Redis) {
+	log.Println("===== Example 2: SET GET JSON =====")
+	key := "2"
+	model := &Model{
+		Id:   uuid.NewV4().String(),
+		Name: "Hi Golang",
+	}
+	r.SetJson(key, model)
+	res := r.Get(key)
+	log.Printf("GET json value %v", res)
+}
+
 // GetAllKeysExample
-func GetAllKeysExample(r app.Redis) {
-	log.Println("===== Example 2: Get all keys =====")
+func GetKeysExample(r app.Redis) {
+	log.Println("===== Example 3: Get KEYS =====")
 	key1 := "1"
 	res1 := r.GetKeys(key1)
 	log.Printf("Get KEYS %v: %v", key1, res1)
@@ -33,58 +47,45 @@ func GetAllKeysExample(r app.Redis) {
 	log.Printf("Get KEYS %v: %v", key2, res2)
 }
 
-// StructToJsonExample using hset and hget
-func StructToJsonExample(r app.Redis) {
-	// json struct
-	type Model struct {
-		Id   string `json:"id"`
-		Name string `json:"name"`
-	}
+// HsetSGetExample
+func HsetSGetExample(r app.Redis) {
+	log.Println("===== Example 4: HGet HSet =====")
+	var key, field1, field2 string
+	key = "3"
+	field1 = "animal"
+	field2 = "food"
 
+	r.HSet(key, field1, "cat")
+	r.HSet(key, field2, "noodles")
+	res1 := r.HGet(key, field1)
+	res2 := r.HGet(key, field2)
+	log.Printf("HGet field: '%v', value: '%v'", field1, res1)
+	log.Printf("HGet field: '%v', value: '%v'", field2, res2)
+}
+
+// StructToJsonExample using hset and hget
+func HSetHGetJsonExample(r app.Redis) {
 	// variables
-	hashKey := "x01x11x1"
-	field1 := "json1"
-	field2 := "json2"
+	key := "x01x11x1"
+	field := "json"
 
 	model := &Model{
 		Id:   uuid.NewV4().String(),
 		Name: "Hi Golang",
 	}
 
-	log.Println("===== Example 3: Struct to Json =====")
-	log.Printf("HSET key: '%v', field: '%v ", hashKey, field1)
-	log.Printf("HSET key: '%v', field: '%v ", hashKey, field2)
-	r.HSet(hashKey, field1, model)
-	r.HSet(hashKey, field2, model)
-	res1 := r.HGet(hashKey, field1)
-	res2 := r.HGet(hashKey, field2)
-	log.Printf("GET field '%v', value %v", field1, res1)
-	log.Printf("GET field '%v', value %v", field2, res2)
-
-	// convert json back to struct
-	newModel1 := &Model{}
-	err := json.Unmarshal([]byte(res1), newModel1)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-
-	// convert json back to struct
-	newModel2 := &Model{}
-	err = json.Unmarshal([]byte(res2), newModel2)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-
-	log.Printf("struct result '%v'", newModel1)
-	log.Printf("struct result '%v'", newModel2)
+	log.Println("===== Example 5: HSet HGet Json  =====")
+	r.HSetJson(key, field, model)
+	res := r.HGet(key, field)
+	log.Printf("GET field: '%v', value: %v", field, res)
 }
 
 // HGetAllExample get all field & value from key
-func HGetAllExample(r app.Redis) {
-	log.Println("===== Example 4: HGet all =====")
-	hashKey := "x01x11x1"
-	log.Printf("List all from '%v' hkeys", hashKey)
-	hashes := r.HGetAll(hashKey)
+func HGetExample(r app.Redis) {
+	log.Println("===== Example 6: HGet all =====")
+	key := "x01x11x1"
+	log.Printf("Get all field & value from key: '%v'", key)
+	hashes := r.HGetAll(key)
 	for h, v := range hashes {
 		log.Println(h, v)
 	}
@@ -92,7 +93,7 @@ func HGetAllExample(r app.Redis) {
 
 // AddItemIntoListExample item can be duplicated
 func AppendItemIntoListExample(r app.Redis) {
-	log.Println("===== Example 5: Append item into list =====")
+	log.Println("===== Example 7: Append item into list =====")
 	var coins []string
 	var position string
 
@@ -108,7 +109,7 @@ func AppendItemIntoListExample(r app.Redis) {
 
 // AddItemIntoSetExample no duplicate item in set
 func AddItemIntoSetExample(r app.Redis) {
-	log.Println("===== Example 6: Add items into set =====")
+	log.Println("===== Example 8: Add items into set =====")
 	var blockchain []string
 	key := "blockchain"
 	blockchain = []string{"ETH", "BNB", "ETH"}
@@ -127,12 +128,17 @@ func main() {
 
 	r.Connect()
 
+	// set get
 	SetGetExample(r)
-	GetAllKeysExample(r)
+	SetGetJsonExample(r)
+	GetKeysExample(r)
 
-	StructToJsonExample(r)
-	HGetAllExample(r)
+	// hset hget
+	HsetSGetExample(r)
+	HSetHGetJsonExample(r)
+	HGetExample(r)
 
+	// list & set
 	AppendItemIntoListExample(r)
 	AddItemIntoSetExample(r)
 }

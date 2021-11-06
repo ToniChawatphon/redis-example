@@ -35,6 +35,16 @@ func (r *Redis) Set(key string, value string) string {
 	return res
 }
 
+// Set json key and value
+func (r *Redis) SetJson(key string, value interface{}) string {
+	res, err := r.rdb.Set(context.Background(), key, hashStruct(value), 0).Result()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return res
+}
+
 // Get value from key
 func (r *Redis) Get(key string) string {
 	res, err := r.rdb.Get(context.Background(), key).Result()
@@ -45,6 +55,7 @@ func (r *Redis) Get(key string) string {
 	return res
 }
 
+// GetKeys from key pattern
 func (r *Redis) GetKeys(key string) []string {
 	res, err := r.rdb.Keys(context.Background(), key).Result()
 	if err != nil {
@@ -55,7 +66,17 @@ func (r *Redis) GetKeys(key string) []string {
 }
 
 // HSet set key, field and value
-func (r *Redis) HSet(key string, field string, data interface{}) int64 {
+func (r *Redis) HSet(key, field, value string) int64 {
+	res, err := r.rdb.HSet(context.Background(), key, field, value).Result()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	return res
+}
+
+// HSet set key, field and value
+func (r *Redis) HSetJson(key string, field string, data interface{}) int64 {
 	res, err := r.rdb.HSet(context.Background(), key, field, hashStruct(data)).Result()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -65,8 +86,8 @@ func (r *Redis) HSet(key string, field string, data interface{}) int64 {
 }
 
 // HGet field, value from key
-func (r *Redis) HGet(id, field string) string {
-	res, err := r.rdb.HGet(context.Background(), id, field).Result()
+func (r *Redis) HGet(key, field string) string {
+	res, err := r.rdb.HGet(context.Background(), key, field).Result()
 	if err != nil {
 		log.Println(err)
 	}
