@@ -8,12 +8,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// Model A json struct
-type Model struct {
-	Id   string
-	Name string
-}
-
 // SetGetExample
 func SetGetExample(r app.Redis) {
 	var key1, value1 string
