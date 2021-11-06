@@ -37,12 +37,21 @@ func (r *Redis) Set(key string, value string) string {
 
 // Get value from key
 func (r *Redis) Get(key string) string {
-	val, err := r.rdb.Get(context.Background(), key).Result()
+	res, err := r.rdb.Get(context.Background(), key).Result()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return val
+	return res
+}
+
+func (r *Redis) GetKeys(key string) []string {
+	res, err := r.rdb.Keys(context.Background(), key).Result()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return res
 }
 
 // HSet set key, field and value
@@ -76,15 +85,24 @@ func (r *Redis) HGetAll(key string) map[string]string {
 }
 
 // Append add item into list based on key
-func (r *Redis) Append(key string, values []string) error {
-	_, err := r.rdb.RPush(context.Background(), key, values).Result()
-	if err != nil {
-		log.Fatal(err)
-	}
+func (r *Redis) Append(position string, key string, values []string) {
+	if position == "right" || position == "" {
+		_, err := r.rdb.RPush(context.Background(), key, values).Result()
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	return err
+	} else if position == "left" {
+		_, err := r.rdb.LPush(context.Background(), key, values).Result()
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		log.Fatalf("Invalid variable %v. positon must be 'left' or 'right'", position)
+	}
 }
 
+// GetList from key
 func (r *Redis) GetList(key string) []string {
 	res, err := r.rdb.LRange(context.Background(), key, 0, -1).Result()
 	if err != nil {
@@ -94,6 +112,7 @@ func (r *Redis) GetList(key string) []string {
 	return res
 }
 
+// AddUnique item into set
 func (r *Redis) AddUnique(key string, field []string) int64 {
 	res, err := r.rdb.SAdd(context.Background(), key, field).Result()
 	if err != nil {
@@ -103,6 +122,7 @@ func (r *Redis) AddUnique(key string, field []string) int64 {
 	return res
 }
 
+// GetUniqueSet from key
 func (r *Redis) GetUniqueSet(key string) []string {
 	res, err := r.rdb.SMembers(context.Background(), key).Result()
 	if err != nil {
